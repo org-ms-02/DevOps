@@ -16,10 +16,9 @@ pipeline {
         stage('Build Lambda Functions') {
             steps {
                 dir('serverless-ecommerce-app/backend/user-authentication') {
-                    sh 'npm install && npm run build'
-                }
-                dir('serverless-ecommerce-app/backend/payment-processing') {
-                    sh 'npm install && npm run build'
+                    sh 'npm install'
+                    // Uncomment this if you have a "build" script in package.json
+                    // sh 'npm run build'
                 }
             }
         }
@@ -88,7 +87,7 @@ pipeline {
         stage('Terraform Apply - Deploy Infrastructure') {
             steps {
                 dir('serverless-ecommerce-app/terraform') {
-                    withCredentials([[ 
+                    withCredentials([[
                         $class: 'AmazonWebServicesCredentialsBinding',
                         credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
                     ]]) {
@@ -113,13 +112,13 @@ pipeline {
 
         stage('Deploy Lambda Functions') {
             steps {
-                withCredentials([[ 
+                withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
                 ]]) {
                     sh '''
-                        aws lambda update-function-code --function-name user-authentication --zip-file fileb://backend/user-authentication/user-auth.zip
-                        aws lambda update-function-code --function-name payment-processing --zip-file fileb://backend/payment-processing/payment-processing.zip
+                        aws lambda update-function-code --function-name user-authentication --zip-file fileb://serverless-ecommerce-app/backend/user-authentication/user-auth.zip
+                        aws lambda update-function-code --function-name payment-processing --zip-file fileb://serverless-ecommerce-app/backend/payment-processing/payment-processing.zip
                     '''
                 }
             }
@@ -128,7 +127,7 @@ pipeline {
         stage('ECS Deployment') {
             steps {
                 dir('serverless-ecommerce-app/terraform') {
-                    withCredentials([[ 
+                    withCredentials([[
                         $class: 'AmazonWebServicesCredentialsBinding',
                         credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
                     ]]) {
