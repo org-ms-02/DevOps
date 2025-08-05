@@ -77,8 +77,8 @@ pipeline {
                     passwordVariable: 'PASSWORD'
                 )]) {
                     sh '''
-                        jfrog rt u "serverless-ecommerce-app/backend/user-authentication/user-auth.zip" "lambda-artifacts/user-auth.zip"
-                        jfrog rt u "serverless-ecommerce-app/backend/payment-processing/payment-processing.zip" "lambda-artifacts/payment-processing.zip"
+                        jf rt u "serverless-ecommerce-app/backend/user-authentication/user-auth.zip" "lambda-artifacts/user-auth.zip"
+                        jf rt u "serverless-ecommerce-app/backend/payment-processing/payment-processing.zip" "lambda-artifacts/payment-processing.zip"
                     '''
                 }
             }
