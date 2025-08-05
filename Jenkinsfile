@@ -77,7 +77,7 @@ pipeline {
                     passwordVariable: 'PASSWORD'
                 )]) {
                     sh '''
-                        jf config use artifactory-server \
+                        jf config add artifactory-server \
                             --url=http://130.131.164.192:8082/ \
                             --user=$USERNAME \
                             --password=$PASSWORD \
