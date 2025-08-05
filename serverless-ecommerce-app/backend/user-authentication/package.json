@@ -1,0 +1,13 @@
+{
+  "name": "user-authentication",
+  "version": "1.0.0",
+  "description": "Lambda function for user authentication",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "aws-sdk": "^2.1112.0"
+  },
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  }
+}

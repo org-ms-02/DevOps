@@ -1,0 +1,13 @@
+{
+  "name": "product-catalog",
+  "version": "1.0.0",
+  "description": "Product catalog service for ECS",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}
