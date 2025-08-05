@@ -84,8 +84,8 @@ pipeline {
                             --password=$PASSWORD \
                             --interactive=false
 
-                        jf rt upload "serverless-ecommerce-app/backend/user-authentication/user-auth.zip" "data-devin-local-generic/user-auth.zip" --server=artifactory-server
-                        jf rt upload "serverless-ecommerce-app/backend/payment-processing/payment-processing.zip" "data-devin-local-generic/payment-processing.zip" --server=artifactory-server
+                        jf rt upload "serverless-ecommerce-app/backend/user-authentication/user-auth.zip" "data-devin-local-generic/user-auth.zip" --server-id=artifactory-server
+                        jf rt upload "serverless-ecommerce-app/backend/payment-processing/payment-processing.zip" "data-devin-local-generic/payment-processing.zip" --server-id=artifactory-server
                     '''
                 }
             }
