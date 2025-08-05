@@ -72,13 +72,13 @@ pipeline {
         stage('Upload Artifacts to JFrog') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: '05b290d8-e5cb-4617-9bb9-a0b2dd218414',
+                    credentialsId: 'a53b0834-9a22-4e78-9ba6-4a09c326a9d1',
                     usernameVariable: 'USERNAME',
                     passwordVariable: 'PASSWORD'
                 )]) {
                     sh '''
                         jf config add artifactory-server \
-                            --url=http://130.131.164.192:8082/artifactory \
+                            --url=http://130.131.164.192:8082/ \
                             --user=$USERNAME \
                             --password=$PASSWORD \
                             --interactive=false
