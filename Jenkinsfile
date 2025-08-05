@@ -17,8 +17,6 @@ pipeline {
             steps {
                 dir('serverless-ecommerce-app/backend/user-authentication') {
                     sh 'npm install'
-                    // Uncomment this if you have a "build" script in package.json
-                    // sh 'npm run build'
                 }
             }
         }

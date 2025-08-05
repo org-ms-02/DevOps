@@ -2,12 +2,12 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# Create ECS Cluster
+
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "devops-ecs-cluster"
 }
 
-# Create IAM Role for Lambda Execution
+
 resource "aws_iam_role" "lambda_execution_role" {
   name = "lambda_execution_role"
 
@@ -25,29 +25,29 @@ resource "aws_iam_role" "lambda_execution_role" {
   })
 }
 
-# Create Lambda Function for user-authentication
+
 resource "aws_lambda_function" "user_auth_lambda" {
   function_name = "user-authentication"
   role          = aws_iam_role.lambda_execution_role.arn
   handler       = "index.handler"
   runtime       = "nodejs18.x"
   timeout       = 60
-  s3_bucket     = "aws2001098122"
+  s3_bucket     = "aws200019220"
   s3_key        = "user-auth.zip"
 }
 
-# Create Lambda Function for payment-processing
+
 resource "aws_lambda_function" "payment_processing_lambda" {
   function_name = "payment-processing"
   role          = aws_iam_role.lambda_execution_role.arn
   handler       = "index.handler"
   runtime       = "nodejs18.x"
   timeout       = 60
-  s3_bucket     = "aws2001098122"
+  s3_bucket     = "aws200019220"
   s3_key        = "payment-processing.zip"
 }
 
-# ECS Task Definition for the App
+
 resource "aws_ecs_task_definition" "app_task" {
   family                   = "devops-task"
   network_mode             = "awsvpc"
@@ -58,17 +58,17 @@ resource "aws_ecs_task_definition" "app_task" {
 
   container_definitions = jsonencode([{
     name      = "devops-app"
-    image     = var.docker_image_url  # Docker image URL from JFrog
+    image     = var.docker_image_url  
     portMappings = [
       {
-        containerPort = 5000  # The port on which the app runs inside the container
-        hostPort      = 5000  # The port mapping on the host
+        containerPort = 5000  
+        hostPort      = 5000  
       }
     ]
   }])
 }
 
-# ECS Service for the App
+
 resource "aws_ecs_service" "app_service" {
   name            = "devops-app-service"
   cluster         = aws_ecs_cluster.ecs_cluster.id
@@ -77,25 +77,25 @@ resource "aws_ecs_service" "app_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = var.subnet_ids  # The IDs of the subnets
-    assign_public_ip = true  # Ensures the service has a public IP
-    security_groups  = [var.security_group_id]  # The Security Group for ECS task
+    subnets          = var.subnet_ids 
+    assign_public_ip = true 
+    security_groups  = [var.security_group_id]  
   }
 
   depends_on = [aws_ecs_task_definition.app_task]
 }
 
-# Output ECS Cluster Name
+
 output "ecs_cluster_name" {
   value = aws_ecs_cluster.ecs_cluster.name
 }
 
-# Output ECS Service Name
+
 output "ecs_service_name" {
   value = aws_ecs_service.app_service.name
 }
 
-# Output Lambda Function Names
+
 output "lambda_user_auth_function" {
   value = aws_lambda_function.user_auth_lambda.function_name
 }
