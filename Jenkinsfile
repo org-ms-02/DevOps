@@ -77,8 +77,14 @@ pipeline {
                     passwordVariable: 'PASSWORD'
                 )]) {
                     sh '''
-                        jf rt u "serverless-ecommerce-app/backend/user-authentication/user-auth.zip" "lambda-artifacts/user-auth.zip"
-                        jf rt u "serverless-ecommerce-app/backend/payment-processing/payment-processing.zip" "lambda-artifacts/payment-processing.zip"
+                        jf config add artifactory-server \
+                            --url=http://130.131.164.192:8082/artifactory \
+                            --user=$USERNAME \
+                            --password=$PASSWORD \
+                            --interactive=false
+
+                        jf rt u "serverless-ecommerce-app/backend/user-authentication/user-auth.zip" "lambda-artifacts/user-auth.zip" --server=artifactory-server
+                        jf rt u "serverless-ecommerce-app/backend/payment-processing/payment-processing.zip" "lambda-artifacts/payment-processing.zip" --server=artifactory-server
                     '''
                 }
             }
