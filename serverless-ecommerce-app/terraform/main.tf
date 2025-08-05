@@ -30,7 +30,7 @@ resource "aws_lambda_function" "user_auth_lambda" {
   function_name = "user-authentication"
   role          = aws_iam_role.lambda_execution_role.arn
   handler       = "index.handler"
-  runtime       = "nodejs14.x"
+  runtime       = "nodejs18.x"
   timeout       = 60
   s3_bucket     = "your-lambda-code-s3-bucket"
   s3_key        = "user-auth.zip"
@@ -41,7 +41,7 @@ resource "aws_lambda_function" "payment_processing_lambda" {
   function_name = "payment-processing"
   role          = aws_iam_role.lambda_execution_role.arn
   handler       = "index.handler"
-  runtime       = "nodejs14.x"
+  runtime       = "nodejs18.x"
   timeout       = 60
   s3_bucket     = "your-lambda-code-s3-bucket"
   s3_key        = "payment-processing.zip"
