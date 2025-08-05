@@ -124,8 +124,8 @@ pipeline {
                     credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
                 ]]) {
                     sh '''
-                        aws lambda update-function-code --function-name user-authentication --zip-file fileb://serverless-ecommerce-app/backend/user-authentication/user-auth.zip
-                        aws lambda update-function-code --function-name payment-processing --zip-file fileb://serverless-ecommerce-app/backend/payment-processing/payment-processing.zip
+                        aws lambda update-function-code --function-name user-authentication --zip-file fileb://serverless-ecommerce-app/backend/user-authentication/user-auth.zip --region us-east-1
+                        aws lambda update-function-code --function-name payment-processing --zip-file fileb://serverless-ecommerce-app/backend/payment-processing/payment-processing.zip --region us-east-1
                     '''
                 }
             }
