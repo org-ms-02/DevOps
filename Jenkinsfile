@@ -15,10 +15,10 @@ pipeline {
 
         stage('Build Lambda Functions') {
             steps {
-                dir('backend/user-authentication') {
+                dir('serverless-ecommerce-app/backend/user-authentication') {
                     sh 'npm install && npm run build'
                 }
-                dir('backend/payment-processing') {
+                dir('serverless-ecommerce-app/backend/payment-processing') {
                     sh 'npm install && npm run build'
                 }
             }
@@ -26,7 +26,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                dir('backend/product-catalog') {
+                dir('serverless-ecommerce-app/backend/product-catalog') {
                     sh 'docker build -t $IMAGE_NAME .'
                 }
             }
@@ -34,10 +34,10 @@ pipeline {
 
         stage('Test Lambda Functions') {
             steps {
-                dir('backend/user-authentication') {
+                dir('serverless-ecommerce-app/backend/user-authentication') {
                     sh 'npm run test'
                 }
-                dir('backend/payment-processing') {
+                dir('serverless-ecommerce-app/backend/payment-processing') {
                     sh 'npm run test'
                 }
             }
@@ -61,10 +61,10 @@ pipeline {
 
         stage('Create Lambda Artifacts') {
             steps {
-                dir('backend/user-authentication') {
+                dir('serverless-ecommerce-app/backend/user-authentication') {
                     sh 'zip -r user-auth.zip .'
                 }
-                dir('backend/payment-processing') {
+                dir('serverless-ecommerce-app/backend/payment-processing') {
                     sh 'zip -r payment-processing.zip .'
                 }
             }
@@ -78,8 +78,8 @@ pipeline {
                     passwordVariable: 'PASSWORD'
                 )]) {
                     sh '''
-                        jfrog rt u "backend/user-authentication/user-auth.zip" "lambda-artifacts/user-auth.zip"
-                        jfrog rt u "backend/payment-processing/payment-processing.zip" "lambda-artifacts/payment-processing.zip"
+                        jfrog rt u "serverless-ecommerce-app/backend/user-authentication/user-auth.zip" "lambda-artifacts/user-auth.zip"
+                        jfrog rt u "serverless-ecommerce-app/backend/payment-processing/payment-processing.zip" "lambda-artifacts/payment-processing.zip"
                     '''
                 }
             }
@@ -87,7 +87,7 @@ pipeline {
 
         stage('Terraform Apply - Deploy Infrastructure') {
             steps {
-                dir('infrastructure/terraform') {
+                dir('serverless-ecommerce-app/terraform') {
                     withCredentials([[ 
                         $class: 'AmazonWebServicesCredentialsBinding',
                         credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
@@ -127,7 +127,7 @@ pipeline {
 
         stage('ECS Deployment') {
             steps {
-                dir('infrastructure/terraform') {
+                dir('serverless-ecommerce-app/terraform') {
                     withCredentials([[ 
                         $class: 'AmazonWebServicesCredentialsBinding',
                         credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
