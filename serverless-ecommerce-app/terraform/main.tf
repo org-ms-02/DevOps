@@ -32,7 +32,7 @@ resource "aws_lambda_function" "user_auth_lambda" {
   handler       = "index.handler"
   runtime       = "nodejs18.x"
   timeout       = 60
-  s3_bucket     = "aws200019220"
+  s3_bucket     = "lamdbas32001"
   s3_key        = "user-auth.zip"
 }
 
@@ -43,7 +43,7 @@ resource "aws_lambda_function" "payment_processing_lambda" {
   handler       = "index.handler"
   runtime       = "nodejs18.x"
   timeout       = 60
-  s3_bucket     = "aws200019220"
+  s3_bucket     = "lamdbas32001"
   s3_key        = "payment-processing.zip"
 }
 
