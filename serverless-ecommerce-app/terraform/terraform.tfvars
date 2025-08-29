@@ -1,4 +1,4 @@
-execution_role_arn = "arn:aws:iam::891377292645:role/demo01"
+execution_role_arn = "arn:aws:iam::211125650496:role/demodevops"
 docker_image_url   = "vinodm2001/devops-ecs-app:latest"
-subnet_ids         = ["subnet-06da1577f62a6819d", "subnet-099fee079c8c81573"]
-security_group_id  = "sg-0a9f3b5ba6f5d8053"
+subnet_ids         = ["subnet-0eefe1f556fc06097", "subnet-0e2ce6c526295acc3"]
+security_group_id  = "sg-0b88ec8e659293663"

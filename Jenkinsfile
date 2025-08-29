@@ -40,6 +40,29 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('http://20.55.91.91:9000/') {   // Must match Jenkins SonarQube server name
+                    withCredentials([string(credentialsId: '84966b2c-0d0a-48d8-b18e-eff9ff3a5fc3', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            mvn sonar:sonar \
+                              -Dsonar.projectKey=devops-ecs-app \
+                              -Dsonar.host.url=$SONAR_HOST_URL \
+                              -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Push Docker Image to JFrog') {
             steps {
                 withCredentials([usernamePassword(
@@ -92,15 +115,13 @@ pipeline {
         stage('Terraform Apply - Deploy Infrastructure') {
             steps {
                 dir('serverless-ecommerce-app/terraform') {
-                    withCredentials([[
+                    withCredentials([[ 
                         $class: 'AmazonWebServicesCredentialsBinding',
                         credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
                     ]]) {
                         sh '''
                             echo "Using AWS credentials"
                             aws sts get-caller-identity
-                            export TF_INPUT=0
-                            export TF_IN_AUTOMATION=true
                             terraform init 
                             terraform apply -auto-approve
                         '''
@@ -119,7 +140,7 @@ pipeline {
 
         stage('Deploy Lambda Functions') {
             steps {
-                withCredentials([[
+                withCredentials([[ 
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
                 ]]) {
@@ -134,7 +155,7 @@ pipeline {
         stage('ECS Deployment') {
             steps {
                 dir('serverless-ecommerce-app/terraform') {
-                    withCredentials([[
+                    withCredentials([[ 
                         $class: 'AmazonWebServicesCredentialsBinding',
                         credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
                     ]]) {
