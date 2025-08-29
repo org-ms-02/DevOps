@@ -42,11 +42,12 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonarQube') {   // Must match Jenkins SonarQube server name
+                withSonarQubeEnv('sonarQube') {
                     withCredentials([string(credentialsId: '84966b2c-0d0a-48d8-b18e-eff9ff3a5fc3', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                            mvn sonar:sonar \
+                            sonar-scanner \
                               -Dsonar.projectKey=devops-ecs-app \
+                              -Dsonar.sources=. \
                               -Dsonar.host.url=$SONAR_HOST_URL \
                               -Dsonar.login=$SONAR_TOKEN
                         '''
@@ -98,7 +99,7 @@ pipeline {
                     passwordVariable: 'PASSWORD'
                 )]) {
                     sh '''
-                        jf config remove artifactory-server --quiet
+                        jf config remove artifactory-server --quiet || true
                         jf config add artifactory-server \
                             --url=http://130.131.164.192:8082/ \
                             --user=$USERNAME \
@@ -115,9 +116,11 @@ pipeline {
         stage('Terraform Apply - Deploy Infrastructure') {
             steps {
                 dir('serverless-ecommerce-app/terraform') {
-                    withCredentials([[ 
+                    withCredentials([[
                         $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
+                        credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                     ]]) {
                         sh '''
                             echo "Using AWS credentials"
@@ -140,9 +143,11 @@ pipeline {
 
         stage('Deploy Lambda Functions') {
             steps {
-                withCredentials([[ 
+                withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
+                    credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd',
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
                     sh '''
                         aws lambda update-function-code --function-name user-authentication --zip-file fileb://serverless-ecommerce-app/backend/user-authentication/user-auth.zip --region us-east-1
@@ -155,9 +160,11 @@ pipeline {
         stage('ECS Deployment') {
             steps {
                 dir('serverless-ecommerce-app/terraform') {
-                    withCredentials([[ 
+                    withCredentials([[
                         $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd'
+                        credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                     ]]) {
                         sh '''
                             echo "Deploying to ECS..."
