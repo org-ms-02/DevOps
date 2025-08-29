@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "devops-ecs-app"
-        REPO = "http://130.131.164.192:8082/artifactory/data-devin-docker-local/"
+        IMAGE_NAME   = "devops-ecs-app"
+        REPO         = "http://130.131.164.192:8082/artifactory/data-devin-docker-local/"
+        BUILD_NUMBER = "01"
     }
 
     stages {
@@ -42,18 +43,20 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: '84966b2c-0d0a-48d8-b18e-eff9ff3a5fc3',
-                    usernameVariable: 'USERNAME',
-                    passwordVariable: 'PASSWORD'
-                )]) {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=devops-ecs-app \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=$SONAR_HOST_URL \
-                          -Dsonar.login=$PASSWORD
-                    '''
+                withSonarQubeEnv('sonarQube') {
+                    script {
+                        def scannerHome = tool name: 'sonar-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                              -Dsonar.projectKey=devops-ecs-app \
+                              -Dsonar.projectName=devops-ecs-app \
+                              -Dsonar.projectVersion=${env.BUILD_NUMBER} \
+                              -Dsonar.sources=serverless-ecommerce-app/backend \
+                              -Dsonar.inclusions=**/*.js \
+                              -Dsonar.host.url=$SONAR_HOST_URL \
+                              -Dsonar.login=$SONAR_AUTH_TOKEN
+                        """
+                    }
                 }
             }
         }
@@ -108,8 +111,11 @@ pipeline {
                             --password=$PASSWORD \
                             --interactive=false
 
-                        jf rt upload "serverless-ecommerce-app/backend/user-authentication/user-auth.zip" "data-devin-local-generic/user-auth.zip" --server-id=artifactory-server
-                        jf rt upload "serverless-ecommerce-app/backend/payment-processing/payment-processing.zip" "data-devin-local-generic/payment-processing.zip" --server-id=artifactory-server
+                        jf rt upload "serverless-ecommerce-app/backend/user-authentication/user-auth.zip" \
+                            "data-devin-local-generic/user-auth.zip" --server-id=artifactory-server
+
+                        jf rt upload "serverless-ecommerce-app/backend/payment-processing/payment-processing.zip" \
+                            "data-devin-local-generic/payment-processing.zip" --server-id=artifactory-server
                     '''
                 }
             }
@@ -118,7 +124,7 @@ pipeline {
         stage('Terraform Apply - Deploy Infrastructure') {
             steps {
                 dir('serverless-ecommerce-app/terraform') {
-                    withCredentials([[ 
+                    withCredentials([[
                         $class: 'AmazonWebServicesCredentialsBinding',
                         credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd',
                         accessKeyVariable: 'AWS_ACCESS_KEY_ID',
@@ -145,15 +151,20 @@ pipeline {
 
         stage('Deploy Lambda Functions') {
             steps {
-                withCredentials([[ 
+                withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd',
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
                     sh '''
-                        aws lambda update-function-code --function-name user-authentication --zip-file fileb://serverless-ecommerce-app/backend/user-authentication/user-auth.zip --region us-east-1
-                        aws lambda update-function-code --function-name payment-processing --zip-file fileb://serverless-ecommerce-app/backend/payment-processing/payment-processing.zip --region us-east-1
+                        aws lambda update-function-code --function-name user-authentication \
+                            --zip-file fileb://serverless-ecommerce-app/backend/user-authentication/user-auth.zip \
+                            --region us-east-1
+
+                        aws lambda update-function-code --function-name payment-processing \
+                            --zip-file fileb://serverless-ecommerce-app/backend/payment-processing/payment-processing.zip \
+                            --region us-east-1
                     '''
                 }
             }
@@ -162,7 +173,7 @@ pipeline {
         stage('ECS Deployment') {
             steps {
                 dir('serverless-ecommerce-app/terraform') {
-                    withCredentials([[ 
+                    withCredentials([[
                         $class: 'AmazonWebServicesCredentialsBinding',
                         credentialsId: '289d6517-d555-4981-a6fb-d5f34ea5a3fd',
                         accessKeyVariable: 'AWS_ACCESS_KEY_ID',
