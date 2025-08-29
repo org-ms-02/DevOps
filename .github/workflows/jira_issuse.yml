@@ -1,0 +1,23 @@
+name: Create Jira Issue on GitHub Issue Creation
+ 
+on:
+  issues:
+    types: [opened]
+ 
+jobs:
+  create_jira_issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+ 
+      - name: Create Jira Issue
+        uses: bryannice/gitactions-jira-issue-creation@master
+        env:
+          JIRA_ACCOUNT_URL: ${{ secrets.JIRA_ACCOUNT_URL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_ISSUE_SUMMARY: ${{ github.event.issue.title }}
+          JIRA_ISSUE_DESCRIPTION: ${{ github.event.issue.body }}
+          JIRA_ISSUE_TYPE: "Bug"
+          JIRA_PROJECT: "GI"
+          JIRA_USERNAME: ${{ secrets.JIRA_USERNAME }}
