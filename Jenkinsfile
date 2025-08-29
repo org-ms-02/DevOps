@@ -42,7 +42,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQubeServer') {   // Must match Jenkins SonarQube server name
+                withSonarQubeEnv('sonarQube') {   // Must match Jenkins SonarQube server name
                     withCredentials([string(credentialsId: '84966b2c-0d0a-48d8-b18e-eff9ff3a5fc3', variable: 'SONAR_TOKEN')]) {
                         sh '''
                             mvn sonar:sonar \
